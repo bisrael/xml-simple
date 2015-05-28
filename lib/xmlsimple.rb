@@ -267,7 +267,7 @@ class XmlSimple
       keyattr keeproot forcecontent contentkey noattr searchpath
       forcearray suppressempty anonymoustag cache grouptags
       normalisespace normalizespace variables varattr keytosymbol
-      attrtosymbol attrprefix conversions
+      attrtosymbol attrprefix conversions keepnamespace
     ),
     'out' => %w(
       keyattr keeproot contentkey noattr rootname
@@ -473,7 +473,12 @@ class XmlSimple
         if empty(value) && (element.attributes.empty? || @options['noattr'])
           next if @options.has_key?('suppressempty') && @options['suppressempty'] == true
         end
-        result = merge(result, child.name, value)
+        name = child.name
+        if @options.has_key?('keepnamespace') && @options['keepnamespace'] == true && child.namespace && child.namespaces
+          ns = child.namespaces.key(child.namespace)
+          name = ns + ':' + name if ns.nil? == false && ns.blank? == false && ns != 'xmlns'
+        end
+        result = merge(result, name, value)
       }
       if has_mixed_content?(element)
         # normalisespace?
